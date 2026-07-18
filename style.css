@@ -1,0 +1,365 @@
+/* ============================================================
+   TRIVIA-9000 — amber phosphor CRT terminal
+   Token system
+   ============================================================ */
+:root {
+  /* color */
+  --bg-void: #050408;
+  --bezel: #1c1712;
+  --bezel-highlight: #362a1a;
+  --bezel-shadow: #0a0806;
+  --screen-bg: #140d06;
+  --phosphor: #ffb400;
+  --phosphor-bright: #ffe08a;
+  --phosphor-dim: #8a5c14;
+  --phosphor-glow: rgba(255, 180, 0, 0.45);
+  --wrong: #ff6a3d;
+  --right: #ffe08a;
+
+  /* type */
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --font-display: "Space Grotesk", sans-serif;
+
+  /* layout */
+  --screen-radius: 18px;
+  --bezel-radius: 34px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-void);
+  background-image: radial-gradient(circle at 50% 20%, #120f18 0%, var(--bg-void) 70%);
+  font-family: var(--font-mono);
+  color: var(--phosphor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.void {
+  width: 100%;
+  max-width: 880px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ------------------------------------------------------------
+   CRT hardware shell
+   ------------------------------------------------------------ */
+.crt-frame {
+  width: 100%;
+  background: linear-gradient(155deg, var(--bezel-highlight), var(--bezel) 40%, var(--bezel-shadow));
+  border-radius: var(--bezel-radius);
+  padding: 22px 22px 16px;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.crt-bezel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px 14px;
+}
+
+.bezel-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: #b8926a;
+  text-transform: uppercase;
+}
+
+.power-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--phosphor);
+  box-shadow: 0 0 6px 2px var(--phosphor-glow);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+
+.crt-bezel-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.vent {
+  width: 26px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ------------------------------------------------------------
+   Screen
+   ------------------------------------------------------------ */
+.crt-screen {
+  position: relative;
+  background: var(--screen-bg);
+  border-radius: var(--screen-radius);
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.9),
+    inset 0 0 2px rgba(255, 180, 0, 0.2);
+  animation: power-on 900ms ease-out both;
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25) 0px,
+    rgba(0, 0, 0, 0.25) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 120px 40px rgba(0, 0, 0, 0.75);
+  z-index: 3;
+}
+
+.terminal {
+  position: relative;
+  z-index: 1;
+  height: min(62vh, 560px);
+  padding: 22px 24px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  text-shadow: 0 0 6px var(--phosphor-glow);
+  font-size: 14px;
+  line-height: 1.65;
+  scrollbar-width: thin;
+  scrollbar-color: var(--phosphor-dim) transparent;
+}
+
+.terminal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal::-webkit-scrollbar-thumb {
+  background: var(--phosphor-dim);
+  border-radius: 4px;
+}
+
+.terminal-output {
+  flex: 1 0 auto;
+}
+
+.line {
+  margin: 0 0 2px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.line.echo {
+  color: var(--phosphor-bright);
+  opacity: 0.85;
+}
+
+.line.meta {
+  color: var(--phosphor-dim);
+}
+
+.line.boot {
+  color: var(--phosphor-dim);
+  font-size: 13px;
+}
+
+.line.question {
+  color: var(--phosphor-bright);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.line.prompt-text {
+  color: var(--phosphor-bright);
+}
+
+.line.right {
+  color: var(--right);
+  font-weight: 700;
+}
+
+.line.wrong {
+  color: var(--wrong);
+}
+
+.line.score {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--phosphor-bright);
+}
+
+/* ------------------------------------------------------------
+   Prompt row (live input)
+   ------------------------------------------------------------ */
+.prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 180, 0, 0.12);
+  margin-top: 8px;
+}
+
+.prompt-symbol {
+  color: var(--phosphor-bright);
+  font-weight: 700;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--phosphor-bright);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  caret-color: var(--phosphor-bright);
+  text-shadow: 0 0 6px var(--phosphor-glow);
+}
+
+.terminal-input:disabled {
+  opacity: 0.4;
+}
+
+.terminal:focus-within {
+  outline: 2px solid var(--phosphor-dim);
+  outline-offset: -2px;
+}
+
+.timer-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--phosphor-dim);
+  border-radius: 999px;
+  color: var(--phosphor-dim);
+  letter-spacing: 0.04em;
+}
+
+.timer-badge.timer-critical {
+  color: var(--wrong);
+  border-color: var(--wrong);
+  animation: flicker 700ms ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------
+   Chrome below the glass
+   ------------------------------------------------------------ */
+.below-glass {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #6b5a3f;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.below-glass kbd {
+  font-family: var(--font-mono);
+  background: var(--bezel);
+  border: 1px solid var(--bezel-highlight);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--phosphor-dim);
+}
+
+/* ------------------------------------------------------------
+   Motion
+   ------------------------------------------------------------ */
+@keyframes power-on {
+  0% {
+    opacity: 0;
+    filter: brightness(3.5);
+    transform: scaleY(0.02);
+  }
+  30% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  45% {
+    filter: brightness(0.4);
+  }
+  60% {
+    filter: brightness(2.2);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-screen {
+    animation: none;
+  }
+  .power-led,
+  .timer-badge.timer-critical {
+    animation: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .crt-frame {
+    border-radius: 22px;
+    padding: 14px 12px 10px;
+  }
+  .terminal {
+    padding: 16px 14px 12px;
+    font-size: 13px;
+    height: min(70vh, 520px);
+  }
+  .bezel-label {
+    font-size: 11px;
+  }
+}

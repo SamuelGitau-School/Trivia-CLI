@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRIVIA-9000 // terminal trivia</title>
+  <meta name="description" content="A CLI-style trivia game rendered as a retro amber terminal, running live in the browser." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="void">
+    <main class="crt-frame" id="crtFrame">
+
+      <div class="crt-bezel-top">
+        <span class="bezel-label">TRIVIA&#8209;9000</span>
+        <span class="power-led" aria-hidden="true"></span>
+      </div>
+
+      <div class="crt-screen" id="crtScreen">
+        <div class="scanlines" aria-hidden="true"></div>
+        <div class="vignette" aria-hidden="true"></div>
+
+        <div class="terminal" id="terminal">
+          <div class="terminal-output" id="output" aria-live="polite"></div>
+
+          <div class="prompt-row">
+            <span class="prompt-symbol" aria-hidden="true">&gt;</span>
+            <input
+              type="text"
+              id="terminalInput"
+              class="terminal-input"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              aria-label="Terminal input — type your answer and press Enter"
+            />
+            <span class="timer-badge" id="timerBadge" hidden></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="crt-bezel-bottom">
+        <span class="vent" aria-hidden="true"></span>
+        <span class="vent" aria-hidden="true"></span>
+        <span class="vent" aria-hidden="true"></span>
+      </div>
+    </main>
+
+    <p class="below-glass">
+      running <code>trivia.js</code> live in your browser — click the screen, type a letter, press
+      <kbd>Enter</kbd>
+    </p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
